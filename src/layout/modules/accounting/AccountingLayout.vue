@@ -1,32 +1,17 @@
 <script setup lang="ts">
+import AppTopbar from '@/layout/AppTopbar.vue';
 import { useLayout } from '@/layout/composables/layout';
+import AccountingFooter from '@/layout/modules/accounting/AccountingFooter.vue';
+import AccountingSidebar from '@/layout/modules/accounting/AccountingSidebar.vue';
+import Toast from 'primevue/toast';
 import { computed, ref, Ref, watch } from 'vue';
-import AppFooter from './AppFooter.vue';
-import AppSidebar from './AppSidebar.vue';
-import AppTopbar from './AppTopbar.vue';
 
-// Definición de tipos para el layout
-interface LayoutState {
-    overlayMenuActive: boolean;
-    staticMenuMobileActive: boolean;
-    staticMenuDesktopInactive: boolean;
-    menuHoverActive: boolean;
-}
-
-interface LayoutConfig {
-    menuMode: 'overlay' | 'static';
-}
-
-// Obtenemos el layout y definimos sus tipos
-const { layoutConfig, layoutState, isSidebarActive } = useLayout() as {
-    layoutConfig: LayoutConfig;
-    layoutState: LayoutState;
-    isSidebarActive: Ref<boolean>;
-};
+const { layoutConfig, layoutState, isSidebarActive } = useLayout();
 
 const outsideClickListener: Ref<((event: MouseEvent) => void) | null> = ref(null);
 
-watch(isSidebarActive, (newVal) => {
+// Agregar el watch para el isSidebarActive
+watch(isSidebarActive, (newVal: boolean) => {
     if (newVal) {
         bindOutsideClickListener();
     } else {
@@ -78,13 +63,13 @@ function isOutsideClicked(event: MouseEvent): boolean {
 
 <template>
     <div class="layout-wrapper" :class="containerClass">
-        <app-topbar></app-topbar>
-        <app-sidebar></app-sidebar>
+        <AppTopbar />
+        <AccountingSidebar />
         <div class="layout-main-container">
             <div class="layout-main">
                 <router-view></router-view>
             </div>
-            <app-footer></app-footer>
+            <AccountingFooter />
         </div>
         <div class="layout-mask animate-fadein"></div>
     </div>

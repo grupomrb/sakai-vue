@@ -4,7 +4,7 @@ import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import Lara from '@primeuix/themes/lara';
 import Nora from '@primeuix/themes/nora';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const { layoutConfig, isDarkTheme } = useLayout();
 
@@ -129,6 +129,7 @@ function getPresetExt() {
             }
         };
     } else {
+        console.log('Theme applied successfully: ', color.name);
         return {
             semantic: {
                 primary: color.palette,
@@ -196,6 +197,88 @@ function onPresetChange() {
 function onMenuModeChange() {
     layoutConfig.menuMode = menuMode.value;
 }
+
+onMounted(() => {
+    console.log('Montando AppConfigurator y aplicando tema azul');
+
+    // Establecer el color primario a blue
+    layoutConfig.primary = 'blue';
+
+    // Establecer la superficie a gray
+    layoutConfig.surface = 'gray';
+
+    // Encontrar los objetos de color
+    const blueColor = primaryColors.value.find((color) => color.name === 'blue');
+    const graySurface = surfaces.value.find((surface) => surface.name === 'gray');
+
+    // Simular un clic en el botón de color azul
+    if (blueColor) {
+        console.log('Blue color found:', blueColor.name);
+        // Aplicar directamente sin usar updateColors para evitar posibles problemas
+        layoutConfig.primary = 'blue';
+        // Aplicar el tema directamente
+        const presetValue = presets[preset.value];
+        const surfacePalette = graySurface?.palette;
+        // Forzar la aplicación del tema azul
+        $t()
+            .preset(presetValue)
+            .preset({
+                semantic: {
+                    primary: blueColor.palette,
+                    colorScheme: {
+                        light: {
+                            primary: {
+                                color: '{primary.500}',
+                                contrastColor: '#ffffff',
+                                hoverColor: '{primary.600}',
+                                activeColor: '{primary.700}'
+                            },
+                            highlight: {
+                                background: '{primary.50}',
+                                focusBackground: '{primary.100}',
+                                color: '{primary.700}',
+                                focusColor: '{primary.800}'
+                            }
+                        },
+                        dark: {
+                            primary: {
+                                color: '{primary.400}',
+                                contrastColor: '{surface.900}',
+                                hoverColor: '{primary.300}',
+                                activeColor: '{primary.200}'
+                            },
+                            highlight: {
+                                background: 'color-mix(in srgb, {primary.400}, transparent 84%)',
+                                focusBackground: 'color-mix(in srgb, {primary.400}, transparent 76%)',
+                                color: 'rgba(255,255,255,.87)',
+                                focusColor: 'rgba(255,255,255,.87)'
+                            }
+                        }
+                    }
+                }
+            })
+            .surfacePalette(surfacePalette)
+            .use({ useDefaultOptions: true });
+    }
+
+    // Aplicar la superficie gris
+    if (graySurface) {
+        layoutConfig.surface = 'gray';
+        updateSurfacePalette(graySurface.palette);
+    }
+
+    // Actualizar localStorage para persistencia
+    localStorage.setItem('primevue-theme-primary', 'blue');
+    localStorage.setItem('primevue-theme-surface', 'gray');
+
+    // Forzar la actualización del tema completo una vez más
+    setTimeout(() => {
+        const presetValue = presets[preset.value];
+        const surfacePalette = surfaces.value.find((s) => s.name === 'gray')?.palette;
+
+        $t().preset(presetValue).preset(getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
+    }, 100);
+});
 </script>
 
 <template>

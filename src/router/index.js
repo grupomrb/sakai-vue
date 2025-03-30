@@ -1,17 +1,19 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import AccountingLayout from '@/layout/modules/accounting/AccountingLayout.vue';
+import { FetchService } from '@/service/api/FetchService';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/',
+            path: '/home',
             component: AppLayout,
             children: [
                 {
-                    path: '/',
-                    name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    path: '/home',
+                    name: 'home',
+                    component: () => import('@/views/Home.vue')
                 },
                 {
                     path: '/uikit/formlayout',
@@ -131,8 +133,51 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        // Ruta para manejar rutas no encontradas (debe ser la última)
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: '/pages/notfound'
+        },
+        {
+            path: '/accounting',
+            component: AccountingLayout,
+            children: [
+                // Añadir children para las rutas hijas
+                {
+                    path: '', // Ruta por defecto
+                    name: 'accounting-home',
+                    component: () => import('@/views/pages/accounting/AccountingHome.vue')
+                },
+                {
+                    path: 'master/voucher',
+                    name: 'accounting-voucher',
+                    component: () => import('@/views/pages/accounting/master/Voucher.vue')
+                }
+                // Aquí puedes añadir más rutas hijas para el módulo de contabilidad
+            ]
         }
     ]
+});
+
+router.beforeEach((to, from, next) => {
+    console.log('Navigating to:', to.path);
+    // Rutas públicas que no requieren autenticación
+    const publicPages = ['/auth/login'];
+    const authRequired = !publicPages.includes(to.path);
+    const isAuthenticated = FetchService.isAuthenticated();
+
+    if (authRequired && !isAuthenticated) {
+        next('/auth/login');
+    }
+
+    // Si la ruta es login y ya está autenticado, redirigir a home
+    if (to.path === '/auth/login' && isAuthenticated) {
+        return next('/home');
+    }
+
+    // Add your navigation guard logic here
+    next();
 });
 
 export default router;

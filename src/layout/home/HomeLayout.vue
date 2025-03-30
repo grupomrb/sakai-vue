@@ -1,30 +1,14 @@
-<script setup lang="ts">
+<script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { computed, ref, Ref, watch } from 'vue';
-import AppFooter from './AppFooter.vue';
-import AppSidebar from './AppSidebar.vue';
-import AppTopbar from './AppTopbar.vue';
+import Toast from 'primevue/toast';
+import { computed, ref, watch } from 'vue';
+import AppFooter from '../AppFooter.vue';
+import AppTopbar from '../AppTopbar.vue';
+import HomeSidebar from './HomeSidebar.vue';
 
-// Definición de tipos para el layout
-interface LayoutState {
-    overlayMenuActive: boolean;
-    staticMenuMobileActive: boolean;
-    staticMenuDesktopInactive: boolean;
-    menuHoverActive: boolean;
-}
+const { layoutConfig, layoutState, isSidebarActive } = useLayout();
 
-interface LayoutConfig {
-    menuMode: 'overlay' | 'static';
-}
-
-// Obtenemos el layout y definimos sus tipos
-const { layoutConfig, layoutState, isSidebarActive } = useLayout() as {
-    layoutConfig: LayoutConfig;
-    layoutState: LayoutState;
-    isSidebarActive: Ref<boolean>;
-};
-
-const outsideClickListener: Ref<((event: MouseEvent) => void) | null> = ref(null);
+const outsideClickListener = ref(null);
 
 watch(isSidebarActive, (newVal) => {
     if (newVal) {
@@ -44,9 +28,9 @@ const containerClass = computed(() => {
     };
 });
 
-function bindOutsideClickListener(): void {
+function bindOutsideClickListener() {
     if (!outsideClickListener.value) {
-        outsideClickListener.value = (event: MouseEvent) => {
+        outsideClickListener.value = (event) => {
             if (isOutsideClicked(event)) {
                 layoutState.overlayMenuActive = false;
                 layoutState.staticMenuMobileActive = false;
@@ -57,20 +41,16 @@ function bindOutsideClickListener(): void {
     }
 }
 
-function unbindOutsideClickListener(): void {
+function unbindOutsideClickListener() {
     if (outsideClickListener.value) {
-        document.removeEventListener('click', outsideClickListener.value);
+        document.removeEventListener('click', outsideClickListener);
         outsideClickListener.value = null;
     }
 }
 
-function isOutsideClicked(event: MouseEvent): boolean {
+function isOutsideClicked(event) {
     const sidebarEl = document.querySelector('.layout-sidebar');
     const topbarEl = document.querySelector('.layout-menu-button');
-
-    if (!sidebarEl || !topbarEl || !(event.target instanceof Node)) {
-        return false;
-    }
 
     return !(sidebarEl.isSameNode(event.target) || sidebarEl.contains(event.target) || topbarEl.isSameNode(event.target) || topbarEl.contains(event.target));
 }
@@ -79,7 +59,7 @@ function isOutsideClicked(event: MouseEvent): boolean {
 <template>
     <div class="layout-wrapper" :class="containerClass">
         <app-topbar></app-topbar>
-        <app-sidebar></app-sidebar>
+        <home-sidebar></home-sidebar>
         <div class="layout-main-container">
             <div class="layout-main">
                 <router-view></router-view>
