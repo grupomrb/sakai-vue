@@ -4,7 +4,7 @@ import type { Source } from '@/type/source';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 
-const { companyData, isLoading, error, fetchCompanyData } = useCompanyData();
+const { companyData } = useCompanyData();
 
 interface FetchState {
     isLoading: boolean;
@@ -30,7 +30,7 @@ export function useSourceData() {
             drivenum: false,
             restartperiode: false,
             active: true,
-            company: companyData
+            company: companyData?.value
         };
     };
 

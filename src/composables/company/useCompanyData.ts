@@ -1,5 +1,5 @@
 import { FetchService } from '@/service/api/FetchService';
-import type { Company } from '@/types/company';
+import type { Company } from '@/type/company';
 import { ref } from 'vue';
 
 // interface CompanyData {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { useCompanyData } from '@/composables/company/useCompanyData';
 import { useSourceData } from '@/composables/source/useSourceData';
-import { Source } from '@/types/source';
+import { Source } from '@/type/source';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -18,6 +19,7 @@ interface ErrorState {
     namesource: string;
 }
 
+const { companyData } = useCompanyData();
 const { source, sourceList, error, initSource, getSourceByCode, getAllSource, saveSource } = useSourceData();
 const toast = useToast();
 const isLoading = ref(false);
@@ -66,7 +68,7 @@ const initializeForm = async () => {
 
         // Focus en el input de código
         setTimeout(() => {
-            const input = document.querySelector('#txtcodigo input');
+            const input = document.querySelector('#txtcodigo input') as HTMLInputElement;
             if (input) {
                 input.focus();
             }
@@ -110,7 +112,8 @@ const hadlerSave = async () => {
                 active: source.value.active ?? true,
                 drivenum: source.value.drivenum ?? false,
                 modulemrb: source.value.modulemrb ?? false,
-                restartperiode: source.value.restartperiode ?? false
+                restartperiode: source.value.restartperiode ?? false,
+                company: companyData?.value ?? null
             };
             const response = await saveSource(sourceToSave);
             console.log('Response received:', response);
@@ -233,10 +236,11 @@ onMounted(async () => {
                         @blur="
                             async () => {
                                 try {
-                                    if (source.codeSource) {
+                                    if (source?.codeSource) {
                                         console.log('Código fuente encontrado:', source.codeSource);
                                         const response = await getSourceByCode(source.codeSource);
                                         console.log('Termino:');
+
                                         if (response === null) {
                                             console.log('Entro');
                                             const currentCode = source.codeSource;
@@ -249,11 +253,11 @@ onMounted(async () => {
                                                 life: 8000
                                             });
                                             errors.codesource = '';
-                                            showMessage = false;
+                                            Object.assign(showMessage, false);
                                             return;
                                         }
 
-                                        source.value = response;
+                                        Object.assign(source, response);
                                         toast.add({
                                             severity: 'info',
                                             summary: 'Notificación',
@@ -261,40 +265,14 @@ onMounted(async () => {
                                             life: 8000
                                         });
                                     }
-                                } catch (error1) {
-                                    console.log('Tipo de error: ', error1);
-                                    switch (error.type) {
-                                        case 'NOT_FOUND':
-                                            const currentCode = source.codeSource;
-                                            initSource();
-                                            source.codeSource = currentCode;
-                                            toast.add({
-                                                severity: 'info',
-                                                summary: 'Información',
-                                                detail: 'Comprobante contable no encontrado, se toma como nuevo',
-                                                life: 3000
-                                            });
-                                            break;
-
-                                        case 'UNAUTHORIZED':
-                                            toast.add({
-                                                severity: 'error',
-                                                summary: 'Error de autenticación',
-                                                detail: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
-                                                life: 3000
-                                            });
-                                            router.push('/auth/login');
-                                            break;
-
-                                        default:
-                                            console.error('Error al buscar el código:', error);
-                                            toast.add({
-                                                severity: 'error',
-                                                summary: 'Error',
-                                                detail: 'Error al buscar el código de la fuente',
-                                                life: 3000
-                                            });
-                                    }
+                                } catch (error) {
+                                    console.log('Tipo de error: ', error);
+                                    toast.add({
+                                        severity: 'error',
+                                        summary: 'Error del sistema',
+                                        detail: 'Se obtuvo un error al procesar la petición',
+                                        life: 3000
+                                    });
                                 }
                             }
                         "
@@ -327,7 +305,17 @@ onMounted(async () => {
 
             <Divider />
 
-            <DataTable :value="sourceList" v-model:selection="source" selectionMode="single" dataKey="idsource" :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20]" responsiveLayout="scroll">
+            <DataTable
+                :value="sourceList"
+                :selection="source || undefined"
+                @update:selection="(val) => (source = val)"
+                selectionMode="single"
+                dataKey="idsource"
+                :paginator="true"
+                :rows="10"
+                :rowsPerPageOptions="[5, 10, 20]"
+                responsiveLayout="scroll"
+            >
                 <Column field="codeSource" header="Código Fuente" sortable />
                 <Column field="nameSource" header="Nombre Fuente" sortable />
                 <Column field="active" header="Activa" sortable>

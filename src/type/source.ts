@@ -8,7 +8,7 @@ export interface Source {
     drivenum: boolean;
     restartperiode: boolean;
     active: boolean;
-    company: Company;
+    company: Company | null;
 }
 
 export interface SourceDTO {

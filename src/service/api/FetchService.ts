@@ -61,7 +61,9 @@ export class FetchService {
 
             if (!token && !url.includes('/authentication')) {
                 this.handleUnauthorized();
-                throw new Error('No hay token de autenticación');
+                // throw new Error('No hay token de autenticación');
+                // Usar la función de navegación
+                router.push('/auth/login');
             }
 
             const baseURL = options.baseURL || this.DEFAULT_BASE_URL;
