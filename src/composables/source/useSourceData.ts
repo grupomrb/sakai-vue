@@ -52,7 +52,7 @@ export function useSourceData() {
                 return null;
             }
             source.value = response;
-            return response;
+            return source;
         } catch (error) {
             state.value.error = error instanceof Error ? error.message : 'Error desconocido';
             throw error;
@@ -90,22 +90,18 @@ export function useSourceData() {
         try {
             state.value.isLoading = true;
             state.value.error = null;
-            console.log('saveSource init: Begin');
-
+            console.log('saveSource init: Begin: ', sourceData);
             // Assuming there's an API call to save the source data
-            const response = await FetchService.fetch<Source>('/rest/source/v1/save', {
+            const response = await FetchService.fetch<Source>('/rest/sources/v2/save', {
                 method: 'POST',
                 body: JSON.stringify(sourceData),
                 baseURL: '/serverms'
             });
+            console.log('Response received:', response);
             if (response) {
                 updateSourceList(response);
-                toast.add({
-                    severity: 'success',
-                    summary: 'Notificación del sistema',
-                    detail: 'Comprobante Contable guardado correctamente',
-                    life: 8000
-                });
+            } else {
+                return null;
             }
             source.value = response;
             return response;

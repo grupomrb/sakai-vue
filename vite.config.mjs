@@ -26,7 +26,9 @@ export default defineConfig({
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/serverms/, '')
             }
-        }
+        },
+        // Agregar esta configuración para permitir el host de Cloudflare
+        allowedHosts: ['avi-disabled-nokia-earlier.trycloudflare.com']
     },
     resolve: {
         alias: {

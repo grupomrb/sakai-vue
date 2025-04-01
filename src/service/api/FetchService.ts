@@ -14,6 +14,7 @@ export class FetchService {
     private static readonly DEFAULT_BASE_URL = '/serverms';
 
     private static handleUnauthorized() {
+        console.log('Entra a borrar cookies');
         // Limpiar cookies
         cookiesUtils.deleteCookie('authToken');
         cookiesUtils.deleteCookie('username');
@@ -54,7 +55,9 @@ export class FetchService {
 
     static async fetch<T>(url: string, options: FetchOptions = {}): Promise<T> {
         try {
+            console.log('Fetching data from URL:', url);
             const token = cookiesUtils.getCookie('authToken');
+            console.log('Obtuvo el token: ', token);
 
             if (!token && !url.includes('/authentication')) {
                 this.handleUnauthorized();
@@ -62,7 +65,9 @@ export class FetchService {
             }
 
             const baseURL = options.baseURL || this.DEFAULT_BASE_URL;
+            console.log('Base URL resolved to:', baseURL);
             const fullUrl = `${baseURL}${url}`;
+            console.log('Full URL resolved to:', fullUrl);
 
             const fetchOptions: RequestInit = {
                 ...options,
@@ -72,7 +77,7 @@ export class FetchService {
                     ...(options.headers || {})
                 }
             };
-
+            console.log('Fetchoptions: ', fetchOptions);
             const response = await fetch(fullUrl, fetchOptions);
             return (await this.handleResponse(response)) as T;
         } catch (error) {
