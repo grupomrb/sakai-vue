@@ -3,4 +3,5 @@ export interface Company {
     nameCompany: string;
     requiredmessage: boolean;
     message1: string;
+    urllogo: string;
 }

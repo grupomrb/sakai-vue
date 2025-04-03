@@ -4,21 +4,13 @@ import { useCompanyData } from '@/composables/company/useCompanyData';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
-// Define Interface para la Compañía
-interface Company {
-    idcompany: number;
-    nameCompany: string;
-    requiredmessage: boolean;
-    message1: string;
-}
-
 const nameCompany = ref<string>('');
 const currentYear: number = new Date().getFullYear();
 const appVersion = ref<string>(version);
 
 const toast = useToast();
 
-const { companyData, isLoading, error, fetchCompanyData } = useCompanyData();
+const { companyData, fetchCompanyData } = useCompanyData();
 
 onMounted(async () => {
     try {

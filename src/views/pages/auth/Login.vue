@@ -35,6 +35,10 @@ interface ErrorState {
     api: string;
 }
 
+interface ApiErrorResponse {
+    message: string;
+}
+
 // Define los tipos validos para el Toast
 type ToastSeverity = 'success' | 'info' | 'warn' | 'error';
 
@@ -204,8 +208,7 @@ const hadlerLogin = async (): Promise<void> => {
                 showToast('error', 'Error', errors.value.api);
             }
         } catch (error) {
-            const err = error as AxiosError;
-            //console.error('Error durante el login:', err);
+            const err = error as AxiosError<ApiErrorResponse>;
             if (err.response?.status === 401) {
                 errors.value.api = 'Credenciales incorrectas. Por favor, intente nuevamente.';
                 showToast('error', errors.value.api, '');

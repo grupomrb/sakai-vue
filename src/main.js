@@ -1,7 +1,7 @@
 import { configure } from 'vee-validate';
 import { createApp } from 'vue';
 import App from './App.vue';
-import router from './router';
+import router from './router/index.ts';
 
 import { $t } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
@@ -95,8 +95,8 @@ $t().preset(themeConfig).surfacePalette(grayPalette).use({ useDefaultOptions: tr
 localStorage.setItem('primevue-theme-primary', 'blue');
 localStorage.setItem('primevue-theme-surface', 'gray');
 
-const pinia = createPinia();
 const app = createApp(App);
+const pinia = createPinia();
 
 app.use(router);
 app.use(PrimeVue, {
@@ -124,4 +124,4 @@ configure({
 
 app.mount('#app');
 // Redirigir a login al iniciar la aplicación
-router.push('/auth/login');
+//router.push('/auth/login');

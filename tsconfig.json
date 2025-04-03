@@ -32,7 +32,7 @@
     "src/**/*.vue",
     "src/**/*.js",
     "src/**/*.jsx"
-, "babel.config.js"  ],
+, "babel.config.js", "src/router/index.js.bak"  ],
   "exclude": [
     "node_modules"
   ]

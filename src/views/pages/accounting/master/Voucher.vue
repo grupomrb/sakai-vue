@@ -26,13 +26,24 @@ const isLoading = ref(false);
 const txtcodigo = ref<any>(null);
 const submitted = ref<boolean>(false);
 const messageError = ref<string>('');
-const showMessage = ref<boolean>(false);
+const typeMessage = ref<string>('');
 const errors = ref<ErrorState>({
     codesource: '',
     namesource: ''
 });
 // Agregamos una variable para controlar si el campo fue tocado
 const nameSourceTouched = ref(false);
+// Agregar estas nuevas referencias después de las existentes
+const messageType = ref<'success' | 'info' | 'warn' | 'error'>('error');
+const messageText = ref<string>('');
+const showMessage = ref<boolean>(false);
+
+// Crear una función helper para mostrar mensajes
+const showMessageAlert = (text: string, type: 'success' | 'info' | 'warn' | 'error') => {
+    messageText.value = text;
+    messageType.value = type;
+    showMessage.value = true;
+};
 
 // Función para validar el formulario
 const validateForm = () => {
@@ -41,7 +52,7 @@ const validateForm = () => {
     if (!source.value?.codeSource) {
         console.log('Entro al error del codigo');
         errors.value.codesource = 'El código Contable es obligatorio';
-        messageError.value = 'El código Contable es obligatorio.';
+        showMessageAlert('El código Contable es obligatorio.', 'error');
         showMessage.value = true;
         return false;
     }
@@ -49,7 +60,7 @@ const validateForm = () => {
     if (!source.value.codeSource) {
         console.log('Entro al error del nombre');
         errors.value.namesource = 'El nombre del comprobante es requerido';
-        messageError.value = 'El nombre del comprobante es requerido';
+        showMessageAlert('El nombre del comprobante es requerido', 'error');
         showMessage.value = true;
         return false;
     }
@@ -126,6 +137,8 @@ const hadlerSave = async () => {
                     detail: source.value.idsource ? 'Comprobante actualizado correctamente' : 'Comprobante guardado correctamente',
                     life: 3000
                 });
+                showMessageAlert(source.value.idsource ? 'Comprobante actualizado correctamente' : 'Comprobante guardado correctamente', 'success');
+                showMessage.value = true;
                 source.value = response;
             } else {
                 toast.add({
@@ -134,6 +147,8 @@ const hadlerSave = async () => {
                     detail: 'Error al guardar el comprobante',
                     life: 3000
                 });
+                showMessageAlert('Error al guardar el comprobante', 'error');
+                showMessage.value = true;
             }
         } catch (error) {
             toast.add({
@@ -142,6 +157,8 @@ const hadlerSave = async () => {
                 detail: 'Error al guardar el comprobante',
                 life: 3000
             });
+            showMessageAlert('Error al guardar el comprobante', 'error');
+            showMessage.value = true;
         }
     }
 };
@@ -156,6 +173,8 @@ watch(
                 errors.value.namesource = 'El nombre del comprobante es requerido';
                 showMessage.value = true;
                 messageError.value = 'El nombre del comprobante es requerido';
+                showMessageAlert('El nombre del comprobante es requerido', 'error');
+                showMessage.value = true;
             } else {
                 errors.value.namesource = '';
                 showMessage.value = false;
@@ -203,8 +222,15 @@ onMounted(async () => {
         </div>
     </div>
     <div class="card" v-if="source">
-        <Message v-if="showMessage" severity="error" :closable="false" @close="showMessage = false" class="mt-4" icon="pi pi-times-circle">
-            {{ messageError }}
+        <Message
+            v-if="showMessage"
+            :severity="messageType"
+            :closable="true"
+            @close="showMessage = false"
+            class="mt-4"
+            :icon="messageType === 'error' ? 'pi pi-times-circle' : messageType === 'success' ? 'pi pi-check-circle' : messageType === 'info' ? 'pi pi-info-circle' : 'pi pi-exclamation-triangle'"
+        >
+            {{ messageText }}
         </Message>
         <div class="flex flex-wrap gap-2 justify-end mt-4">
             <Button icon="pi pi-file" label="Nuevo" class="mr-2" severity="secondary" @click="initializeForm" />
@@ -315,7 +341,13 @@ onMounted(async () => {
                 :rows="10"
                 :rowsPerPageOptions="[5, 10, 20]"
                 responsiveLayout="scroll"
+                :totalRecords="sourceList.length"
             >
+                <template #header>
+                    <div class="flex flex-wrap items-center justify-center w-full">
+                        <span class="text-xl font-bold">Comprobantes Contables encontrados ({{ sourceList.length }})</span>
+                    </div>
+                </template>
                 <Column field="codeSource" header="Código Fuente" sortable />
                 <Column field="nameSource" header="Nombre Fuente" sortable />
                 <Column field="active" header="Activa" sortable>

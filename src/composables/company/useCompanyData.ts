@@ -2,13 +2,6 @@ import { FetchService } from '@/service/api/FetchService';
 import type { Company } from '@/type/company';
 import { ref } from 'vue';
 
-// interface CompanyData {
-//     nameCompany: string;
-//     requiredmessage: boolean;
-//     message1: string;
-//     urllogo: string;
-// }
-
 interface FetchState {
     isLoading: boolean;
     error: string | null;
